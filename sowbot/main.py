@@ -5,10 +5,23 @@ from dotenv import load_dotenv
 # .envファイルから環境変数を読み込む
 load_dotenv()
 
+# TODO: 正式なベリロン共通ボットのidに置き換える
+verylong_common_bot_author_id = 1289935680236183553 # @tsutsukenz
+# TODO: 正式なトークン送付完了文言に置き換える
+tweet_text_token_transfer_complete = '無事に届いたよ'
+
 class SowBotStream(tweepy.StreamingClient):
 	def on_tweet(self, tweet):
 		print("on_tweet")
 		print(tweet.data)
+		if tweet.author_id == verylong_common_bot_author_id:
+			print("ベリロン共通ボットからのメンション")
+			if tweet_text_token_transfer_complete in tweet.text:
+				print("トークン送付完了ツイート")
+			else:
+				print("その他ツイート")
+		else:
+			print("一般ユーザからのメンション")
 
 	def delete_all_rules(self):
 		print("delete_all_rules")
