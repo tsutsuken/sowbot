@@ -4,7 +4,7 @@ Twitter 上で SOW(Sold Out Woman)軍団を呼び出すためのボットです�
 
 ## 環境
 
-python 3.10.2
+python 3.10.2  
 tweepy 4.10.0
 
 ## 参考リンク
