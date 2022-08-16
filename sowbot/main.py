@@ -1,16 +1,34 @@
 import os
+from tkinter.messagebox import NO
 import tweepy
+from tweepy.client import BaseClient, Response
 from dotenv import load_dotenv
 
 # .envファイルから環境変数を読み込む
 load_dotenv()
 
+# 環境変数を読み込む
+consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
+consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
+access_token = os.getenv('TWITTER_ACCESS_TOKEN')
+access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+bearer_token = os.getenv('TWITTER_BEARER_TOKEN')
+
+# TODO: 正式なドリンカブルボットのusernameに置き換える
+username_drinkable_bot= '@kenkonn' 
 # TODO: 正式なベリロン共通ボットのidに置き換える
 verylong_common_bot_author_id = 1289935680236183553 # @tsutsukenz
 # TODO: 正式なトークン送付完了文言に置き換える
 tweet_text_token_transfer_complete = '無事に届いたよ'
 
 class SowBotStream(tweepy.StreamingClient):
+	def __init__(self, bearer_token, *, return_type=Response,
+                 wait_on_rate_limit=False, **kwargs):
+		print('init SowBotStream')
+		super().__init__(bearer_token, return_type=Response,
+                 wait_on_rate_limit=False, **kwargs)
+		self.client = tweepy.Client(bearer_token, consumer_key, consumer_secret, access_token, access_token_secret)
+
 	def on_tweet(self, tweet):
 		print("on_tweet")
 		print(tweet.data)
@@ -18,6 +36,31 @@ class SowBotStream(tweepy.StreamingClient):
 			print("ベリロン共通ボットからのメンション")
 			if tweet_text_token_transfer_complete in tweet.text:
 				print("トークン送付完了ツイート")
+				# referenced_tweetsがNoneでないかチェック
+				print(f"referenced_tweets", tweet.referenced_tweets)
+				if not tweet.referenced_tweets:
+					print("referenced_tweetsが見つかりませんでした")
+					return
+				
+				# reference_typeがreplied_toかチェック
+				referenced_tweet = tweet.referenced_tweets[0]
+				reference_type = referenced_tweet.type
+				print(f"reference_type", reference_type)
+				if reference_type != "replied_to":
+					print("reference_typeがreplied_toではありませんでした")
+					return
+				
+				# 「トークン送付完了ツイート」のリプライ先ツイートを取得
+				tweet_id = referenced_tweet.id
+				tweet_fetched = self.client.get_tweet(tweet_id, expansions=['author_id'], tweet_fields=['author_id','created_at'])
+				print(f'tweet_fetched: {tweet_fetched}')
+				tweet_text = tweet_fetched.data.text
+				print(f'tweet_text: {tweet_text}')
+
+				# TODO: ツイートのauthor_idが、共通ボットのものかチェック			
+				# TODO: ツイートからコマンドを取得
+				# TODO: ツイートから送付トークン数を取得
+				# TODO: sow軍団にメンションを飛ばす
 			else:
 				print("その他ツイート")
 		else:
@@ -45,19 +88,17 @@ class SowBotStream(tweepy.StreamingClient):
 		print('rules after deleting', self.get_rules())
 
 # Streamを生成
-bearer_token = os.getenv('BEARER_TOKEN')
 sow_bot_stream = SowBotStream(bearer_token)
 
 # Streamのrulesをリセット
 sow_bot_stream.delete_all_rules()
 
 # Streamにrulesを追加
-username_sow_bot= '@kenkonn' # TODO: 正式なusernameに置き換える
-rule_mention_to = username_sow_bot
+rule_mention_to = username_drinkable_bot
 sow_bot_stream.add_rules(tweepy.StreamRule(rule_mention_to))
 print('rules after adding', sow_bot_stream.get_rules())
 
 # Twitterタイムラインの監視をスタート
 print('start watching tweets')
-required_info = ['author_id', 'created_at']
+required_info = ['author_id', 'created_at', 'referenced_tweets']
 sow_bot_stream.filter(tweet_fields=required_info)
