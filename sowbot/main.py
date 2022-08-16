@@ -21,10 +21,10 @@ verylong_common_bot_author_id = 1289935680236183553 # @tsutsukenz
 # TODO: 正式なトークン送付完了文言に置き換える
 tweet_text_token_transfer_complete = '無事に届いたよ'
 
-class SowBotStream(tweepy.StreamingClient):
+class DrinkableBotStream(tweepy.StreamingClient):
 	def __init__(self, bearer_token, *, return_type=Response,
                  wait_on_rate_limit=False, **kwargs):
-		print('init SowBotStream')
+		print('init DrinkableBotStream')
 		super().__init__(bearer_token, return_type=Response,
                  wait_on_rate_limit=False, **kwargs)
 		self.client = tweepy.Client(bearer_token, consumer_key, consumer_secret, access_token, access_token_secret)
@@ -88,17 +88,17 @@ class SowBotStream(tweepy.StreamingClient):
 		print('rules after deleting', self.get_rules())
 
 # Streamを生成
-sow_bot_stream = SowBotStream(bearer_token)
+drinkable_bot_stream = DrinkableBotStream(bearer_token)
 
 # Streamのrulesをリセット
-sow_bot_stream.delete_all_rules()
+drinkable_bot_stream.delete_all_rules()
 
 # Streamにrulesを追加
 rule_mention_to = username_drinkable_bot
-sow_bot_stream.add_rules(tweepy.StreamRule(rule_mention_to))
-print('rules after adding', sow_bot_stream.get_rules())
+drinkable_bot_stream.add_rules(tweepy.StreamRule(rule_mention_to))
+print('rules after adding', drinkable_bot_stream.get_rules())
 
 # Twitterタイムラインの監視をスタート
 print('start watching tweets')
 required_info = ['author_id', 'created_at', 'referenced_tweets']
-sow_bot_stream.filter(tweet_fields=required_info)
+drinkable_bot_stream.filter(tweet_fields=required_info)
