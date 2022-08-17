@@ -28,7 +28,36 @@ class DrinkableBotStream(tweepy.StreamingClient):
 		super().__init__(_bearer_token, return_type=Response,
                  wait_on_rate_limit=False, **kwargs)
 		self.client = tweepy.Client(_bearer_token, consumer_key, consumer_secret, access_token, access_token_secret)
+		self.delete_all_rules()
+		self.add_custom_rules()
 
+	def delete_all_rules(self):
+		print("delete_all_rules")
+		rule_ids = []
+		rules = self.get_rules()
+		print('rules before deleting', rules)
+		
+		# rule_idsを作成
+		if str(rules).find("id") == -1:
+			print("did not delete: no id in rules")
+			return
+		for rule in rules.data:
+			rule_ids.append(rule.id)
+			
+		# rulesを削除
+		if(len(rule_ids) <= 0): 
+			print("did not delete: rule_ids <= 0")
+			return
+		print("deleted rules")
+		self.delete_rules(rule_ids)
+		print('rules after deleting', self.get_rules())
+
+	def add_custom_rules(self):
+		print("add_custom_rules")
+		rule_mention_to = username_drinkable_bot
+		self.add_rules(tweepy.StreamRule(rule_mention_to))
+		print('rules after adding', self.get_rules())
+	
 	def on_tweet(self, tweet):
 		print("on_tweet")
 		print(tweet.data)
@@ -66,45 +95,16 @@ class DrinkableBotStream(tweepy.StreamingClient):
 		else:
 			print("一般ユーザからのメンション")
 
-	def delete_all_rules(self):
-		print("delete_all_rules")
-		rule_ids = []
-		rules = self.get_rules()
-		print('rules before deleting', rules)
-		
-		# rule_idsを作成
-		if str(rules).find("id") == -1:
-			print("did not delete: no id in rules")
-			return
-		for rule in rules.data:
-			rule_ids.append(rule.id)
-			
-		# rulesを削除
-		if(len(rule_ids) <= 0): 
-			print("did not delete: rule_ids <= 0")
-			return
-		print("deleted rules")
-		self.delete_rules(rule_ids)
-		print('rules after deleting', self.get_rules())
-
 
 def main(): 
-	# Streamを生成
-	drinkable_bot_stream = DrinkableBotStream(bearer_token)
+	init_stream()
 
-	# Streamのrulesをリセット
-	drinkable_bot_stream.delete_all_rules()
-
-	# Streamにrulesを追加
-	rule_mention_to = username_drinkable_bot
-	drinkable_bot_stream.add_rules(tweepy.StreamRule(rule_mention_to))
-	print('rules after adding', drinkable_bot_stream.get_rules())
-
+def init_stream():
+	print('init_stream')
 	# Twitterタイムラインの監視をスタート
-	print('start watching tweets')
+	drinkable_bot_stream = DrinkableBotStream(bearer_token)
 	required_info = ['author_id', 'created_at', 'referenced_tweets']
 	drinkable_bot_stream.filter(tweet_fields=required_info)
-
 
 if __name__ == "__main__":
     main()
