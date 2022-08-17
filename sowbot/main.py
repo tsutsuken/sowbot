@@ -22,12 +22,12 @@ verylong_common_bot_author_id = 1289935680236183553 # @tsutsukenz
 tweet_text_token_transfer_complete = '無事に届いたよ'
 
 class DrinkableBotStream(tweepy.StreamingClient):
-	def __init__(self, bearer_token, *, return_type=Response,
+	def __init__(self, _bearer_token, *, return_type=Response,
                  wait_on_rate_limit=False, **kwargs):
 		print('init DrinkableBotStream')
-		super().__init__(bearer_token, return_type=Response,
+		super().__init__(_bearer_token, return_type=Response,
                  wait_on_rate_limit=False, **kwargs)
-		self.client = tweepy.Client(bearer_token, consumer_key, consumer_secret, access_token, access_token_secret)
+		self.client = tweepy.Client(_bearer_token, consumer_key, consumer_secret, access_token, access_token_secret)
 
 	def on_tweet(self, tweet):
 		print("on_tweet")
