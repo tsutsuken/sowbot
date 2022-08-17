@@ -87,18 +87,24 @@ class DrinkableBotStream(tweepy.StreamingClient):
 		self.delete_rules(rule_ids)
 		print('rules after deleting', self.get_rules())
 
-# Streamを生成
-drinkable_bot_stream = DrinkableBotStream(bearer_token)
 
-# Streamのrulesをリセット
-drinkable_bot_stream.delete_all_rules()
+def main(): 
+	# Streamを生成
+	drinkable_bot_stream = DrinkableBotStream(bearer_token)
 
-# Streamにrulesを追加
-rule_mention_to = username_drinkable_bot
-drinkable_bot_stream.add_rules(tweepy.StreamRule(rule_mention_to))
-print('rules after adding', drinkable_bot_stream.get_rules())
+	# Streamのrulesをリセット
+	drinkable_bot_stream.delete_all_rules()
 
-# Twitterタイムラインの監視をスタート
-print('start watching tweets')
-required_info = ['author_id', 'created_at', 'referenced_tweets']
-drinkable_bot_stream.filter(tweet_fields=required_info)
+	# Streamにrulesを追加
+	rule_mention_to = username_drinkable_bot
+	drinkable_bot_stream.add_rules(tweepy.StreamRule(rule_mention_to))
+	print('rules after adding', drinkable_bot_stream.get_rules())
+
+	# Twitterタイムラインの監視をスタート
+	print('start watching tweets')
+	required_info = ['author_id', 'created_at', 'referenced_tweets']
+	drinkable_bot_stream.filter(tweet_fields=required_info)
+
+
+if __name__ == "__main__":
+    main()
