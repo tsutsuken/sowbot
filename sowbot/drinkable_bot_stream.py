@@ -94,10 +94,18 @@ class DrinkableBotStream(tweepy.StreamingClient):
 
 				# ツイートからコマンドと送付トークン数を取得
 				command_info = self.command_info(tweet_text)
-				if command_info: 
-					print(f'command_info command: {command_info.command}, token_amount: {command_info.token_amount}')
+				if not command_info: 
+					print('command_infoを取得できませんでした')
+					return
+				print(f'command_info command: {command_info.command}, token_amount: {command_info.token_amount}')
 
-				# TODO: sow軍団にメンションを飛ばす
+				# コマンドに応じる
+				if command_info.command == 'summon':
+					transferred_token_amount = command_info.token_amount
+					reply_target_tweet_id = tweet_fetched.data.id # リプライ先は「ユーザが共通ボットに命令をしたツイート」
+					self.on_command_summon(transferred_token_amount, reply_target_tweet_id)
+				else:
+					print('summon以外のコマンドが呼ばれました')
 			else:
 				print("その他ツイート")
 		else:
@@ -119,3 +127,11 @@ class DrinkableBotStream(tweepy.StreamingClient):
 			print('no matches') 
 			command_info = None
 		return command_info
+
+	def on_command_summon(self, transferred_token_amount, reply_target_tweet_id):
+		print('on_command_summon')
+		# sow軍団を召喚する
+		tweet_text = f'command: summon, transferred_token_amount: {transferred_token_amount}'
+		self.client.create_tweet(text=tweet_text, in_reply_to_tweet_id=reply_target_tweet_id)
+
+		# TODO: 召喚するユーザ名を取得し、tweet_textに入れる
