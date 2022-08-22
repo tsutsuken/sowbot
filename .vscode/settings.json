@@ -1,0 +1,10 @@
+{
+  // Pythonコードをblackでフォーマットする設定
+  // （Python拡張をインストールして pip install black しておく）
+  "python.formatting.provider": "black",
+  "python.linting.enabled": true, // リンターを有効に
+  "[python]": {
+    "editor.defaultFormatter": null, // Prettier を使わないようにする
+    "editor.formatOnSave": true // ファイル保存時に自動フォーマット
+  }
+}
