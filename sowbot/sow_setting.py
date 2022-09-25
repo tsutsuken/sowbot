@@ -47,3 +47,5 @@ JOIN_SOW_RESULT_ALREADY = 3     #入隊済
 
 RESULT_LOWEST_CLASS = 2         #降格させようとしたらすでに最低クラスだった件
 
+RESULT_GET_ID_ERROR = -1        #ID取得しよとしたときのエラー
+
